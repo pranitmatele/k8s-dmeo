@@ -1,11 +1,20 @@
 - hosts: all
   become: true
   tasks: 
-     - name: delete old deployment
-       command: kubectl delete -f /home/ubuntu/test/Deployment.yml -n default
-     - name: delete old service
-       command: kubectl delete -f /home/ubuntu/test/Service.yml -n default
-     - name: create new deployment
-       command: kubectl apply -f /home/ubuntu/test/Deployment.yml -n default
-     - name: create new service
-       command: kubectl apply -f /home/ubuntu/test/Service.yml -n default
+    - name: Delete old deployment
+      command: kubectl delete -f /home/ubuntu/test/Deployment.yml -n default
+      ignore_errors: yes
+      register: result
+      failed_when: "'Error from server (NotFound)' not in result.stderr"
+
+    - name: Delete old service
+      command: kubectl delete -f /home/ubuntu/test/Service.yml -n default
+      ignore_errors: yes
+      register: result
+      failed_when: "'Error from server (NotFound)' not in result.stderr"
+
+    - name: Create new deployment
+      command: kubectl apply -f /home/ubuntu/test/Deployment.yml -n default
+
+    - name: Create new service
+      command: kubectl apply -f /home/ubuntu/test/Service.yml -n default
